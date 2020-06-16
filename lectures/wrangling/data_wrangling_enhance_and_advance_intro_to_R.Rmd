@@ -37,7 +37,7 @@ Session 3 - Data Wrangling <!-- Week of the Footer Here -->
 
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
 
-ericdunford.com/enhance_and_advance_R
+http://ericdunford.com/enhance_and_advance_R/
 
 </span></div> 
 
@@ -73,7 +73,7 @@ class: outline
 ![:space 25]
 
 .center[
-  **[ericdunford.com/enhance_and_advance_R](ericdunford.com/enhance_and_advance_R)**
+  **[http://ericdunford.com/enhance_and_advance_R/](http://ericdunford.com/enhance_and_advance_R/)**
 ]
 
 
