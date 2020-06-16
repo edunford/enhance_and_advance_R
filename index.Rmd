@@ -1,28 +1,56 @@
 ---
 title: Enhance and Advance
-subtitle: Introduction to `R` 
+subtitle: Introduction to `R` (Week 2)
+author: McCourt School of Public Policy, Georgetown University
 date: Summer 2020
 output: 
   html_document:
     theme: flatly
 ---
 
+<br>
+
+<hr>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-**Instructor**: [Eric Dunford](http://ericdunford.com/)
+**Instructor**: [Eric Dunford](http://ericdunford.com/) 
+
+  - Associate Director, MS in Data Science for Public Policy ; Assistant Teaching Professor
+  - Email: ed769@georgetown.edu
+  - Webinar Materials: http://ericdunford.com/enhance_and_advance_R/
+
+<br>
+
+<hr>
+
+<br>
+
 
 
 # [Data Wrangling with the `Tidyverse`](lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html)
 
-## _Table of contents_
+## _Table of contents for Slides_
+  - [What is data wrangling?](http://ericdunford.com/enhance_and_advance_R/lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html#4)
+  - [Tidy data](http://ericdunford.com/enhance_and_advance_R/lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html#7)
+  - [Manipulating data with `dplyr`](http://ericdunford.com/enhance_and_advance_R/lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html#15)
+  - [Piping data](http://ericdunford.com/enhance_and_advance_R/lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html#57)
+  - [Joining data](http://ericdunford.com/enhance_and_advance_R/lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html#64)
+  - [Reshaping data using `tidyr`](http://ericdunford.com/enhance_and_advance_R/lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html#82)
 
 
 
-## _Practice_ 
+## _Application_ 
 
 - [Wrangling Conflict Event Data](lectures/wrangling/walkthroughs/manipulating-conflict-data.nb.html)
   - [Download](lectures/wrangling/walkthroughs/manipulating-conflict-data.Rmd.zip) notebook.
 
+
+<br>
+
+<hr>
+
+<br>
 
