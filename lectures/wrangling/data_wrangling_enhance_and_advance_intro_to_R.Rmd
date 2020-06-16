@@ -1,0 +1,1305 @@
+---
+title: 
+    <font class = "title-panel"> Enhance and Advance &mdash; Introduction to `R` Webinar </font>
+  <font size=100, face="bold">  Data Wrangling</font>
+  <br>
+  <br>
+  <font size=6, face="bold"> Summer 2020 </font> 
+author: 
+  <font class = "title-footer"> 
+  &emsp;Dr. Eric Dunford &emsp;&#9670;&emsp; Georgetown University &emsp;&#9670;&emsp; McCourt School of Public Policy &emsp;&#9670;&emsp; eric.dunford@georgetown.edu</font>
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: "gu-theme.css"
+    nature:
+      beforeInit: "macros.js"
+      highlightStyle: github
+      countIncrementalSlides: False
+      highlightLines: true
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+require(tidyverse)
+require(here)
+knitr::opts_chunk$set(echo = T,message=F,error=F,warning = F,cache=T)
+```
+
+layout: true
+
+<div class="slide-footer"><span> 
+"Enhance and Advance": Intro to R
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+
+Session 3 - Data Wrangling <!-- Week of the Footer Here -->
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+
+ericdunford.com/enhance_and_advance_R
+
+</span></div> 
+
+---
+class: outline
+
+# Plan for Today 
+
+
+.center[
+90% of data science is **data wrangling**, that is...
+
+<strong>![:text_color red](reading)</strong>
+
+<strong>![:text_color darkorange](manipulating)</strong>
+
+<strong>![:text_color yellow](piping)</strong>
+ 
+<strong>![:text_color forestgreen](joining)</strong>
+ 
+<strong>![:text_color blue](reshaping)</strong>
+
+<br>
+
+<!-- <strong>![:text_color black](...)</strong> -->
+
+<font size=250>![:text_color purple](Data!)</font>]
+
+---
+
+# Materials for Today
+
+![:space 25]
+
+.center[
+  **[ericdunford.com/enhance_and_advance_R](ericdunford.com/enhance_and_advance_R)**
+]
+
+
+---
+
+# What is data wrangling?
+
+![:space 3]
+
+- **raw &rarr; processed**: the process of transforming data from one format to another.
+
+![:space 3]
+
+- **converting the structure** to facilitate some analysis
+  + **_altering the unit of analysis_**: going from individuals in a state in a given year to state-year by
+  
+  + changing from a **_"wide"_** (many columns, few rows) **_to a "long" structure_** (few colums, many rows)
+  
+  + **_summarizing data_** across specific subgroups 
+ 
+---
+
+## `tidyverse`  
+
+Today, we are going to cover a basic (but powerful) toolkit for data manipulation in `R` by focusing on a suite of packages known as the "[`tidyverse`](https://www.tidyverse.org)". These are designed to ease the process of data manipulation and management so that it is more intuitive, efficient, and interpretable.
+
+
+
+[`tidyverse`](https://www.tidyverse.org) is a housing package that holds the following packages:
+- [`readr`](http://readr.tidyverse.org/) - for reading data in
+- [`tibble`](https://tibble.tidyverse.org/) - for "tidy" data structures
+- [`dplyr`](http://dplyr.tidyverse.org/) - for data manipulation
+- [`ggplot2`](http://ggplot2.tidyverse.org/) - for data visualization
+- [`tidyr`](http://tidyr.tidyverse.org/) - for cleaning and transforming data
+- [`purrr`](http://purrr.tidyverse.org/) - functional programming toolkit
+- [`stringr`](https://stringr.tidyverse.org/) - string manipulation
+- [`forcats`](https://forcats.tidyverse.org/) - manipulating factors
+
+---
+
+## `tidyverse` 
+
+![:space 5]
+
+Most of everything we will ever need for data manipulation housed in just **one** package
+
+![:space 5]
+
+```{r,eval=F}
+# Install tidyverse package
+install.packages('tidyverse')
+
+# Load the package
+require(tidyverse)
+```
+  
+---
+
+class:newsection
+
+# Tidy Data
+
+---
+
+![:space 40]
+
+
+###The same data can be represented in many different ways...
+
+
+
+.center[
+
+```{r,echo=F}
+tab <- 
+  tribble(
+    ~country, ~year, ~cases, ~population,
+    'Afghanistan',  1999,    745,   19987071,
+    'Afghanistan',  2000,   2666,   20595360,
+    'Brazil'     ,  1999,  37737,  172006362,
+    'Brazil'     ,  2000,  80488,  174504898,
+    'China'      ,  1999, 212258, 1272915272,
+    'China'      ,  2000, 213766, 1280428583
+  )
+
+# tab %>% kableExtra::kable(.,align = 'c')
+```
+]
+
+---
+
+<br><br>
+.center[
+```{r,echo=F}
+tab %>% 
+  gather(type,count,-country,-year) %>% 
+  arrange(country,year) %>% 
+  kableExtra::kable(.,align = 'c')
+```
+]
+
+---
+
+<br><br><br>
+.center[
+```{r, echo = F}
+tab %>% 
+  unite('rate',c('cases','population'),sep = "/") %>% 
+  kableExtra::kable(.,align = 'c')
+```
+]
+
+---
+
+<br><br>
+.center[
+```{r,echo=F}
+tab %>% 
+  select(-population) %>% 
+  spread(year,cases) %>% 
+  kableExtra::kable(.,align = 'c',caption = "Cases")
+```
+]
+
+<br>
+
+.center[
+```{r,echo=F}
+tab %>% 
+  select(-cases) %>% 
+  spread(year,population) %>% 
+  kableExtra::kable(.,align = 'c',caption = "Population")
+```
+]
+
+
+
+---
+
+There are three interrelated rules which make a dataset **tidy**:
+<br><br>
+1. **Each variable must have its own column.**
+
+2. **Each observation must have its own row.**
+
+3. **Each value must have its own cell.**
+
+.center[<img src="Figures/tidy-data.png">]
+
+---
+
+## Tidy!
+
+<br><br>
+
+.center[
+```{r,echo=F}
+tab %>% kableExtra::kable(.,align = 'c')
+```
+]
+
+---
+
+## `tibble()` data frames
+
+![:space 5]
+
+> "Tibbles _are_ data frames, but they tweak some older behaviours to make life a little easier." - Hadley Wickham
+
+![:space 5]
+
+Differences between `tibbles` and `data.frames`
+
+1. Tibbles have a refined print method that shows only the first 10 rows, and all the columns that fit on screen. This makes it much easier to work with large data.
+
+2. More explicit errors: tibbles are strict. They throw lots of errors, meaning we catch mistakes early. 
+
+---
+
+class: newsection
+
+# Manipulating Data<br>
+
+
+---
+
+![:space 20]
+
+.pull-left[
+ ![:center_img 85](Figures/dplyr_logo.png)
+]
+
+.pull-right[
+
+- The `dplyr` package (part of the `tidyverse`) offers an intuitive **_verb based_** approach to data management in `R`. 
+
+- The goal of the `dplyr` logic is to provide an easy, intuitive naming convention for ubiquitous to data management tasks.
+
+]
+
+![:space 60]
+
+<!-- > Note that the tidyverse moves to a `tibble` data.frame, which is a special kind of data.frame class that keeps the best parts of `data.frame` but drops the unnecessary bits, such as printing the entire data object. -->
+
+
+---
+
+## 6 main `dplyr` verbs
+
+![:space 3]
+
+- **`select()`**: Pick variables by their names.
+
+- **`filter()`**: Pick observations by their values
+
+- **`arrange()`**: Reorder the rows.
+
+- **`mutate()`**: Create new variables with functions of existing variables.
+
+- **`summarise()`**: Collapse many values down to a single summary.
+
+- **`group_by()`**: changes the scope of each function from operating on the entire dataset to operating on it group-by-group. 
+---
+
+class:biglist
+
+
+## How they work...
+
+<br>
+<br>
+
+**All verbs work similarly:**
+
+1. The first argument is a data frame.
+
+2. The subsequent arguments describe what to do with the data frame, using the variable names (without quotes).
+
+3. The result is a new data frame.
+
+---
+
+![:space 5]
+
+To walk through the performance of the main `dplyr` verbs, we'll use an internal dataset called `presidential`.
+
+```{r,eval=F}
+?presidential # for information on the data
+```
+
+```{r}
+dat <- presidential
+head(dat)
+```
+
+
+---
+
+# `select()`
+
+.center[<img src="Figures/select.png">]
+
+---
+
+![:space 10]
+
+```{r}
+select(dat,name,party)
+```
+
+---
+
+Or variable ranges using `:`
+
+The following will provide all variables in-between `name` and `end`.
+
+```{r}
+select(dat,name:end)
+```
+
+---
+
+The **order** in which variables are selected will translate to the output. Thus, one can easily **reorder columns** with `select()`.
+```{r}
+select(dat,name,end,start)
+```
+
+---
+
+We can also easily **rename** variables by simply providing a new name within the function.
+```{r}
+select(dat,president=name,
+       startdate=start,
+       enddate=end)
+```
+
+---
+
+Lastly, `select()` offers us a convenient way to drop variables by using the same logic that we employed with putting a **negative sign** in front of a dimension. The only difference here is that we can do the same but with a variable name.
+
+Here we **drop** the `start` date variable.
+```{r}
+select(dat,-start)
+```
+
+---
+
+### Other useful `select()` behavior
+
+---
+
+### Other useful `select()` behavior
+
+- `contains()` - extract columns with a specific naming convention.
+
+```{r}
+select(dat,contains("a"))
+```
+
+---
+
+### Other useful `select()` behavior
+
+- `contains()` - extract columns with a specific naming convention.
+
+- `starts_with()` - extract columns that start with a specific naming convention.
+
+```{r}
+select(dat,starts_with("s"))
+```
+
+---
+
+### Other useful `select()` behavior
+
+- `contains()` - extract columns with a specific naming convention.
+
+- `starts_with()` - extract columns that start with a specific naming convention.
+
+- `ends_with()` - extract columns that end with a specific naming convention.
+
+```{r}
+select(dat,ends_with("d"))
+```
+
+
+
+---
+
+### Other useful `select()` behavior
+
+- `contains()` - extract columns with a specific naming convention.
+
+- `starts_with()` - extract columns that start with a specific naming convention.
+
+- `ends_with()` - extract columns that end with a specific naming convention.
+
+- `everything()` - extract every remaining column not yet stated in the selection. 
+
+```{r}
+select(dat,start,end,everything())
+```
+
+---
+
+### Other useful `select()` behavior
+
+- `contains()` - extract columns with a specific naming convention.
+
+- `starts_with()` - extract columns that start with a specific naming convention.
+
+- `ends_with()` - extract columns that end with a specific naming convention.
+
+- `everything()` - extract every remaining column not yet stated in the selection. 
+
+- `matches()` - extract columns using a regular expression.
+
+```{r}
+select(dat,matches("^s"))
+```
+
+---
+
+## `filter()`
+
+![:space 3]
+
+.center[<img src="Figures/filter.png">]
+
+---
+
+![:space 15]
+
+```{r}
+filter(dat,party == "Republican")
+```
+
+---
+
+## `arrange()`
+
+![:space 3]
+
+.center[<img src="Figures/arrange.png">]
+---
+
+![:space 10]
+
+```{r}
+arrange(dat,party)
+```
+
+---
+
+`arrange()` with the internal function `desc()` can change to a **descending** ordering.
+```{r}
+arrange(dat,desc(start))
+```
+
+---
+
+## `mutate()`
+
+![:space 3]
+
+.center[<img src="Figures/mutate.png">]
+
+---
+
+![:space 10]
+```{r}
+mutate(dat,
+       # in office during cold war
+       CW = start <= '1990-03-11')
+```
+
+---
+
+`mutate()` also allows us to **_instantly_** use variables we just created.
+
+```{r}
+mutate(dat,
+       CW = start <= '1990-03-11',
+       CW = as.numeric(CW))
+```
+
+---
+
+Like `mutate()`, `transmute()` provides a method for generating a new variable, but unlike the former, it **returns only the newly created variable**.
+
+```{r}
+transmute(dat,CW = start <= '1990-03-11')
+```
+
+---
+
+## `summarize()`
+
+![:space 5]
+
+.center[Compress many values into a single value, e.g. aggregation.]
+
+![:space 10]
+```{r}
+summarize(dat,
+          days_in_office = mean(end-start),
+          max = max(end-start),
+          min = min(end-start))
+```
+
+---
+
+![:space 10]
+
+There are a number of internal functions that can be used to summarize data.
+
+- `n()` &mdash; counts the number of observations
+- `n_distinct()` &mdash; counts the number of distinct entries.
+
+![:space 5]
+
+```{r}
+summarize(dat, 
+          number_of_presidents = n(),
+          number_of_political_parties = n_distinct(party))
+```
+
+---
+
+## `group_by()`
+
+![:space 3]
+
+.center[<img src="Figures/group_by.png">]
+
+---
+
+![:space 10]
+
+When used in conjunction with some of the other functions, `group_by()` becomes a powerful to perform by cluster/unit/group operations.
+
+![:space 5]
+
+```{r}
+# group by party
+x <- group_by(dat,party)
+summarize(x,min_in_office = min(end-start))
+```
+
+
+---
+
+### Other useful `tidyverse` functions 
+
+- `count()`/`add_count()`
+
+```{r}
+count(dat, party)
+```
+
+```{r}
+add_count(dat, party)
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+- `count()`/`add_count()`
+
+- `recode()`
+
+```{r}
+mutate(dat,party = recode(party,'Republican'=1,'Democratic'=0))
+```
+
+
+---
+
+### Other useful `tidyverse` functions 
+
+- `count()`/`add_count()`
+
+- `recode()`
+
+- `pull()`
+
+```{r}
+pull(dat,party)
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+- `count()`/`add_count()`
+
+- `recode()`
+
+- `pull()`
+
+- `glimpse()`
+
+```{r}
+glimpse(dat)
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+- `count()`/`add_count()`
+
+- `recode()`
+
+- `pull()`
+
+- `glimpse()`
+
+- `slice()`
+
+```{r}
+slice(dat,2:3)
+```
+
+
+
+---
+
+### Other useful `tidyverse` functions 
+
+
+- `sample_n()`/`sample_frac()`
+
+```{r}
+sample_n(dat,2)
+```
+
+```{r}
+sample_frac(dat,.25)
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+
+- `sample_n()`/`sample_frac()`
+
+- `case_when()`
+
+```{r}
+mutate(dat, 
+       pres_type = case_when(
+         (end - start) == 1461 ~ "one-term pres.",
+         (end - start) == 2922 ~ "two-term pres.",
+         TRUE ~ "special case"
+       )
+)
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+
+- `sample_n()`/`sample_frac()`
+
+- `case_when()`
+
+- `lag()`/`lead()`
+
+```{r}
+mutate(dat,
+       predecessor = lag(name,n=1,order_by=start)
+)
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+
+- `sample_n()`/`sample_frac()`
+
+- `case_when()`
+
+- `lag()`/`lead()`
+
+- `row_number()`
+
+```{r}
+mutate(dat,id = row_number())
+```
+
+---
+
+### Other useful `tidyverse` functions 
+
+
+- `sample_n()`/`sample_frac()`
+
+- `case_when()`
+
+- `lag()`/`lead()`
+
+- `row_number()`
+
+- `rowname_to_column()`/`column_to_rownames()`
+
+```{r}
+rownames_to_column(dat,'id')
+```
+
+
+---
+
+### Other useful `tidyverse` functions 
+
+
+- `sample_n()`/`sample_frac()`
+
+- `case_when()`
+
+- `lag()`/`lead()`
+
+- `row_number()`
+
+- `rowname_to_column()`/`column_to_rownames()`
+
+```{r}
+column_to_rownames(head(dat,3),var="name")
+```
+
+---
+
+### Cheating is allowed
+
+![:space 10]
+
+[**Download a cheatsheet**](https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf) to  containing an entire list of the tidyverse `dplyr` verbs.
+
+![:space 5]
+
+.center[OR]
+![:space 5]
+
+Access any cheatsheet for the RStudio ecosystem of packages directly from the IDE. 
+
+.center[`Help > Cheatsheets`]
+
+
+
+---
+
+class:newsection
+
+# Piping 
+
+---
+
+## Combining `dplyr` functions
+
+When we need to do a series of manipulations, we can **perform each manipulation individually and save each entry as a new object** that we write over.
+```{r}
+x <- filter(presidential,party=='Republican')
+x <- group_by(x,name)
+x <- transmute(x,t_in_office = end-start)
+x <- arrange(x,t_in_office)
+x
+```
+
+---
+
+Or we can **nest** functions _within_ each other.
+```{r}
+arrange(
+  transmute(
+    group_by(
+      filter(presidential,party=='Republican'),name),
+    t_in_office = end-start),
+  t_in_office)
+```
+
+--
+
+The issue with **nesting functions** is that it is **![:text_color darkred](difficult to [1] read and [2] detect a mistake!)**
+
+---
+
+### Piping Functions
+
+The **pipe** is a useful tool that allows us to **pass** output from one function to the next.
+
+To pipe we write **`%>%`** _in-between_ each function.
+
+.center[`data %>% function1() %>% function2()`]
+
+We pass the output to specific locations in the proceeding function using the pointer `.`
+
+.center[`data %>% function1(arg = .)`]
+
+Piping offers is a clean way of manipulating data that is **intuitive and easy to read**.
+
+---
+
+Here we **pass** our `data` to `filter()` then to `group_by()` then to `transmute()` and then finally to `arrange()` which returns our output!
+
+```{r}
+presidential %>%
+  filter(party=='Republican') %>%
+  group_by(name) %>%
+  transmute(t_in_office = end-start) %>%
+  arrange(t_in_office)
+```
+
+---
+
+### Two things to keep in mind when piping...
+
+![:space 15]
+
+1. Functions **_must_** be linked with `%>%`
+
+2. When functions have **multiple arguments**, point to where the data should go with a period (`.`)
+```{r,eval=F}
+data %>% function(arg1= ., arg2=TRUE)
+```
+
+
+---
+
+# PRACTICE: ![:text_color steelblue](_Wrangling Data_)
+
+![:space 5]
+
+Please **_download and complete_** the following practice on your own:
+
+.center[ **[Download the Data Wrangling Practice Set](practice/week04-practice-01_Data-Wrangling.Rmd.zip)** (`.Rmd`)]
+
+![:space 5]
+
+Then **_compare your answers_** to the answers in the **_answer key_**:
+
+.center[ **[Download Answer Key](practice/week04-practice-01_Data-Wrangling_ANSWERS.Rmd.zip)** (`.Rmd`)]
+
+---
+
+class:newsection
+
+# Joining Data
+
+
+---
+
+## `_join` functions (dplyr)
+
+![:space 5]
+
+`dplyr` offers a range of joining/merging functions that are more intuitive to use. These functions provide a **SQL framework** that is easier to read and more efficient.
+- `left_join()`
+- `right_join()`
+- `inner_join()`
+- `full_join()`
+- `anti_join()`
+
+When joining data, you must have a **unique** identifier on the dimension you're matching on.
+
+---
+
+![:space 10]
+
+Consider the following two example datasets...
+```{r,echo=F}
+data_A = data.frame("country"=c("Nigeria","England","Botswana"),
+                    "Var1"=c(4,3,6),stringsAsFactors = F)
+data_B = data.frame("country"=c("Nigeria","United States","Botswana"),
+                    "Var2"=c("Low","High","Medium"),stringsAsFactors = F)
+```
+```{r}
+data_A
+data_B
+```
+
+---
+
+## `left_join()`
+
+.center[<img src="Figures/left_join.png", height=100px>]
+
+.center[<img src="Figures/left-join.gif", height=400px>]
+
+---
+
+## `left_join()`
+
+.center[<img src="Figures/left_join.png", height=100px>]
+
+![:space 10]
+```{r}
+left_join(data_A,data_B,by="country")
+```
+
+
+---
+
+## `right_join()`
+
+.center[<img src="Figures/right_join.png", height=100px>]
+
+.center[<img src="Figures/right-join.gif", height=400px>]
+
+---
+
+## `right_join()`
+
+.center[<img src="Figures/right_join.png", height=100px>]
+
+![:space 10]
+
+```{r}
+right_join(data_A,data_B,by="country")
+```
+
+---
+
+## `inner_join()`
+
+.center[<img src="Figures/inner_join.png", height=100px>]
+
+.center[<img src="Figures/inner-join.gif", height=400px>]
+
+---
+
+## `inner_join()`
+
+.center[<img src="Figures/inner_join.png", height=100px>]
+
+![:space 10]
+
+```{r}
+inner_join(data_A,data_B,by="country")
+```
+
+---
+
+ ### `full_join()` 
+ 
+.center[<img src="Figures/full_join.png", height=100px>]
+
+.center[<img src="Figures/full-join.gif", height=400px>]
+
+
+
+---
+
+### `full_join()`
+
+<center> <img src="Figures/full_join.png", height=100px> </center>
+
+![:space 10]
+
+```{r}
+full_join(data_A,data_B,by="country")
+```
+
+---
+
+### `anti_join()` 
+ 
+.center[<img src="Figures/anti_join_left.png", height=100px>]
+
+.center[<img src="Figures/anti-join.gif", height=400px>]
+
+---
+
+### `anti_join()` 
+
+.center[<img src="Figures/anti_join_left.png", height=100px>]
+
+![:space 10]
+
+```{r}
+anti_join(data_A,data_B,by="country")
+```
+
+---
+
+## `bind_rows()`
+
+<center> <img src="Figures/rbind.png"> </center>
+
+![:space 5]
+```{r}
+bind_rows(data_A,data_B)
+```
+
+---
+
+## `bind_cols()`
+
+<center> <img src="Figures/cbind.png"> </center>
+
+![:space 5]
+```{r}
+bind_cols(data_A,data_B)
+```
+
+---
+
+## Disparate column names
+
+
+![:space 10]
+
+Sometimes the naming conventions of two datasets don't perfectly align. When this happens, we can specify how data merges onto one another more explicitly using the `by=` argument.
+
+Moreover, we can merge on **_more_ than one dimension** by specifying all relevant column names.
+
+---
+
+![:space 10]
+
+Once again, consider the following example data..
+```{r,echo=F}
+data_A = data.frame("country"=c("Nigeria","England","Botswana"),
+                    'year'=c(1999,2001,2000),
+                    "Var1"=c(4,3,6),stringsAsFactors = F)
+data_B = data.frame("country_name"=c("Nigeria","United States","Botswana"),
+                    'year'=c(1999,2004,2003),
+                    "Var2"=c("Low","High","Medium"),stringsAsFactors = F)
+```
+```{r}
+data_A
+data_B
+```
+
+---
+
+![:space 20]
+
+```{r}
+full_join(data_A,data_B,
+          by=c('country'='country_name',
+               'year'))
+```
+
+---
+
+class:newsection
+
+# Reshaping Data
+
+---
+
+![:space 10]
+
+Often, we need to alter the structure of a `data.frame` from a **wide format**...
+
+![:space 10]
+
+.center[
+```{r,echo=F,fig.align="center"}
+D <-
+  expand.grid(
+  country = c("Nigeria","Iran","Cambodia","Australia"),
+  year = c("1992","1993","1994")
+)
+set.seed(123)
+D$var <- round(rnorm(nrow(D),10,.5),2)
+
+# Present as table
+D %>% 
+  spread(year,var) %>% 
+  kableExtra::kable(.,align = 'c')
+```
+]
+
+---
+
+...into a **long format**
+
+.center[
+```{r,echo=F}
+D %>% arrange(country) %>% 
+  kableExtra::kable(.,align = 'c')
+```
+]
+
+
+---
+
+
+![:space 20]
+
+.pull-left[
+ ![:center_img 85](Figures/tidyr_logo.png)
+]
+
+.pull-right[
+
+
+`tidyr` is a tidyverse package built to help reshape data. The package contains an array of functions that are all useful cleaning a data construct. 
+
+`tidyr` eases tasks such as:
+
+- dropping missing values
+- filling missing values
+- separating a column into two variables or uniting two columns into one
+
+]
+
+
+---
+
+### `pivot_longer()`: from wide-to-long
+
+![:space 15]
+
+![:center_img 100](Figures/gather.png)
+
+---
+
+```{r,echo=F}
+dat <- D %>% spread(year,var) 
+```
+
+
+### `pivot_longer()`: from wide-to-long
+
+![:space 10]
+
+```{r}
+dat
+```
+
+---
+
+### `pivot_longer()`: from wide-to-long
+
+Specify the columns you want to expand
+
+```{r}
+dat %>% pivot_longer(cols="1992":"1994")
+```
+
+
+---
+
+### `pivot_longer()`: from wide-to-long
+
+Rename the expanded columns
+
+```{r}
+dat %>% pivot_longer(cols="1992":"1994",
+                     names_to = "year",
+                     values_to = "ln_gdppc")
+```
+
+---
+
+### `pivot_longer()`: from wide-to-long
+
+![:space 10]
+Be selective about which columns are expanded and which are not. 
+
+```{r}
+# variables can be excluded from the reshape
+dat %>% pivot_longer(cols="1992",
+                     names_to = "year",
+                     values_to = "ln_gdppc") 
+```
+
+
+---
+
+## `pivot_wider()`: from long-to-wide
+
+![:space 10]
+
+.center[<img src ="Figures/spread.png">]
+
+---
+
+## `pivot_wider()`: from long-to-wide
+
+```{r,echo=F}
+dat <- D %>% rename(ln_gdppc=var)
+dat=dat[-2,]
+dat=dat[-6,]
+```
+
+
+![:space 10]
+```{r}
+dat 
+```
+
+---
+
+## `pivot_wider()`: from long-to-wide
+
+Main arguments:
+
+- `names_from`: name of the variable that will be spread out into columns. 
+- `values_from`: values that will populate the cells of each column
+
+![:space 3]
+
+```{r}
+
+dat %>% pivot_wider(names_from = year,
+                    values_from = ln_gdppc)
+```
+
+---
+
+## `pivot_wider()`: from long-to-wide
+
+Main arguments:
+
+- `names_from`: name of the variable that will be spread out into columns. 
+- `values_from`: values that will populate the cells of each column.
+- `values_fill`: specify what value a missing value should take on.
+
+```{r}
+dat %>% pivot_wider(names_from = year,
+                    values_from = ln_gdppc,
+                    values_fill = list(ln_gdppc = -99))
+```
+
+---
+
+## Legacy code
+
+![:space 5]
+
+Note that `pivot_wider()` and `pivot_longer()` are relatively new wrappers for the older `gather()` and `spread()` functions. 
+
+![:space 5]
+
+What does this mean for you?
+
+- Answers online and in the reading on how to reshape data may differ depending on the preference of the source. 
+
+- Use whatever versions of the function that work best for you.
+
+- Many find that  `pivot_wider()` and `pivot_longer()` are easier to use than the older `gather()` and `spread()` functions.
+
+
+
+
+---
+
+# PRACTICE: 
+## ![:text_color steelblue](_Joining and Reshaping Data_)
+
+![:space 2]
+
+
+Please **_download and complete_** the following practice on your own:
+
+.center[ **[Download the Joining & Reshaping Practice Set](practice/week04-practice-02_joining-reshaping.Rmd)** (`.Rmd`)]
+
+![:space 5]
+
+Then **_compare your answers_** to the answers in the **_answer key_**:
+
+.center[ **[Download Answer Key](practice/week04-practice-02_joining-reshaping_ANSWERS.Rmd)** (`.Rmd`)]
