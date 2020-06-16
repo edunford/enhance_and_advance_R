@@ -196,4 +196,3 @@ dat %>%
   lm(growth ~ ln_fatalities + ln_n_events, data = .) %>% 
   summary(.)
 ```
-Interesting! It seems that the number of fatalities ceases to matter once we take into account the total number of events that took place within a country. Specifically a one percent increase in the level of political instability corresponds to a .51% decrease in growth.^[Note that endogeneity is absolutely at play here, so don't read too deeply into the results.] 
