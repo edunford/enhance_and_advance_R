@@ -1,10 +1,28 @@
 ---
-output: html_document
+title: Enhance and Advance
+subtitle: Introduction to `R` 
+date: Summer 2020
+output: 
+  html_document:
+    theme: flatly
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+**Instructor**: [Eric Dunford](http://ericdunford.com/)
+
+
+# [Data Wrangling with the `Tidyverse`](lectures/wrangling/data_wrangling_enhance_and_advance_intro_to_R.html)
+
+## _Table of contents_
+
+
+
+## _Practice_ 
+
+- [Wrangling Conflict Event Data](lectures/wrangling/walkthroughs/manipulating-conflict-data.nb.html)
+  - [Download](lectures/wrangling/walkthroughs/manipulating-conflict-data.Rmd.zip) notebook.
 
 

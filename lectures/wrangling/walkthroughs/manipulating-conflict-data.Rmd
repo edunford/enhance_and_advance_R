@@ -35,7 +35,7 @@ require(tidyverse)
 ACLED is a "disaggregated data collection, analysis, and crisis mapping project. ACLED collects the dates, actors, locations, fatalities, and modalities of all reported political violence and protest events across Africa, South Asia, Southeast Asia, the Middle East, Central Asia and the Caucasus, Latin America and the Caribbean, and Southeastern and Eastern Europe and the Balkans." For this exercise, we'll focus just on the data pertaining to _Africa_. For more information regarding these data, please consult the [ACLED methodology](https://acleddata.com/resources/methodology/).
 
 ```{r}
-acled <- read_csv("acled_africa.csv")
+acled <- read_csv("https://raw.githubusercontent.com/edunford/enhance_and_advance_R/master/lectures/wrangling/walkthroughs/acled_africa.csv")
 head(acled)
 ```
 
