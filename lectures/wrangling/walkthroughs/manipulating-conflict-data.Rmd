@@ -45,11 +45,62 @@ head(acled)
 To understand a dataset, one needs to ask a lot of questions of it. To get a better feel for the ACLED data, let's explore the following questions:
 
 #### 1. What's the temporal coverage of the data?
+
+```{r}
+acled %>% 
+  group_by(country) %>% 
+  summarize(min_year = min(year),
+            max_year = max(year))
+```
+
+
 #### 2. How many events are recorded for each country? 
+
+```{r}
+acled %>% 
+  count(country,sort=T)
+```
+
 #### 3. How many events are recorded for each year?
+
+```{r}
+acled %>% 
+  count(year,sort=T)
+```
+
+
 #### 4. What's the most common event type in the data?
+
+```{r}
+acled %>% 
+  group_by(event_type) %>% 
+  summarize(n_events = n()) %>% 
+  arrange(desc(n_events))
+```
+
+
 #### 5. How many `sub_` event types are there for each event type?
+
+```{r}
+acled %>% 
+  group_by(event_type) %>% 
+  summarize(n_subtypes = n_distinct(sub_event_type)) %>% 
+  arrange(desc(n_subtypes))
+```
+
+
 #### 6. Which countries had the highest number of reported fatalities? 
+
+```{r}
+new_data <- 
+  acled %>% 
+  group_by(country,year) %>% 
+  summarize(fatalities = sum(fatalities)) %>% 
+  arrange(desc(fatalities))
+
+new_data
+```
+
 
 # Political Violence &rarr; Economic Growth
 

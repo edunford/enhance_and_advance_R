@@ -1,0 +1,63 @@
+---
+title: |
+ | Enhance and Advance
+ | Introduction to R
+subtitle: "Data Visualization Application: Gapminder" 
+author: Eric Dunford
+affiliation: "Georgetown University"
+date: "Summer 2020" 
+output: 
+  html_notebook:
+    theme: flatly
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+```{r setup, include= F}
+knitr::opts_chunk$set(error=F,warning = F,comment=F)
+
+# Load dependencies--------------------------
+
+# The tidyverse package covered last time 
+
+#install.packages("tidyverse")
+require(tidyverse)
+
+# install.packages("ggthemes")
+require(ggthemes) # for great visualization colors and themes. 
+
+# install.packages("maps")
+require(maps) # for some maps data
+
+# Gapminder data (for example)
+#install.packages("gapminder")
+require(gapminder)
+```
+
+# Data 
+
+The [`Gapminder` dataset](https://www.gapminder.org/) is a famous dataset used by Hans Rosling to visualize development outcomes. The data covers 1952 to 2007 in five year intervals and measures life expectancy, population, and GDP Per Capita. 
+
+```{r}
+gapminder %>% head()
+```
+
+
+# Get to know the data through visualization
+
+Each of the following questions are targeted at making sure we understand our data better. A great way to get a "feel" for a dataset is to visualize it. Answer each of the below questions with a (publishable-quality) picture. 
+
+
+#### 1. How is `lifeExp`, `pop` and `gdpPercap` variables distributed?
+
+
+#### 2. What's the relationship between economic development and life expectancy? Is the relationship the same for all continents?
+
+
+#### 3. Which countries in Africa have the lowest levels of life expectancy?
+
+
+
+
+
