@@ -1,0 +1,161 @@
+---
+title: |
+ | Enhance and Advance
+ | Introduction to R
+subtitle: "Data Visualization Application: Gapminder" 
+author: Eric Dunford
+affiliation: "Georgetown University"
+date: "Summer 2020" 
+output: 
+  html_notebook:
+    theme: flatly
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+```{r setup, include= F}
+knitr::opts_chunk$set(error=F,warning = F,comment=F)
+
+# Load dependencies--------------------------
+
+# The tidyverse package covered last time 
+
+#install.packages("tidyverse")
+require(tidyverse)
+
+# install.packages("ggthemes")
+require(ggthemes) # for great visualization colors and themes. 
+
+# install.packages("maps")
+require(maps) # for some maps data
+
+# Gapminder data (for example)
+#install.packages("gapminder")
+require(gapminder)
+```
+
+# Data 
+
+The [`Gapminder` dataset](https://www.gapminder.org/) is a famous dataset used by Hans Rosling to visualize development outcomes. The data covers 1952 to 2007 in five year intervals and measures life expectancy, population, and GDP Per Capita. 
+
+```{r}
+gapminder %>% head()
+```
+
+
+# Get to know the data through visualization
+
+Each of the following questions are targeted at making sure we understand our data better. A great way to get a "feel" for a dataset is to visualize it. Answer each of the below questions with a (publishable-quality) picture. 
+
+
+#### 1. How is `lifeExp`, `pop` and `gdpPercap` variables distributed?
+
+```{r}
+gapminder %>% 
+  ggplot(aes(x=lifeExp)) +
+  geom_histogram(bins=50)
+
+
+gapminder %>% 
+  mutate(ln_pop = log(pop)) %>%
+  ggplot(aes(x=ln_pop)) +
+  geom_histogram(bins=50)
+
+
+gapminder %>% 
+  mutate(ln_gdppp = log(gdpPercap)) %>%
+  ggplot(aes(x=ln_gdppp)) +
+  geom_histogram(bins=50)
+```
+
+
+```{r,fig.align="center",fig.height=4,fig.width=10}
+# Data manipulation
+gapminder %>% 
+  mutate(ln_gdppp = log(gdpPercap),
+         ln_pop = log(pop)) %>%
+  pivot_longer(cols=c(lifeExp,ln_pop,ln_gdppp)) %>% 
+  mutate(name = case_when(
+    name == "lifeExp" ~ "Life Expectancy",
+    name == "ln_pop" ~ "Log Population",
+    name == "ln_gdppp" ~ "Log GDP Per Capita"
+  )) %>% 
+  
+  # Plot code
+  ggplot(aes(x=value,fill=name)) +
+  geom_histogram(bins=25,show.legend = F,alpha=.8,color="white") +
+  # geom_density(show.legend = F,alpha=.8,color="white") +
+  facet_wrap(~name,scales = "free_x") + 
+  scale_fill_economist() +
+  labs(caption = "Source: gapminder.org",
+       title = "Distribution of variables") +
+  theme_fivethirtyeight() +
+  theme(text = element_text(family="serif",size=14,face="bold"))
+```
+
+
+#### 2. What's the relationship between economic development and life expectancy? Is the relationship the same for all continents?
+
+
+```{r,fig.align="center",fig.height=4,fig.width=7}
+gapminder %>% 
+  mutate(ln_gdppc = log(gdpPercap)) %>% 
+  ggplot(aes(x=ln_gdppc,y=lifeExp)) +
+  geom_point(alpha=.4,color="grey50") +
+  geom_smooth(method = "loess",se=F,color="darkred",size=1.5) +
+  theme_minimal()
+```
+
+
+```{r,fig.align="center",fig.height=4,fig.width=7}
+gapminder %>% 
+  mutate(ln_gdppc = log(gdpPercap)) %>% 
+  ggplot(aes(x=ln_gdppc,y=lifeExp,color=continent)) +
+  geom_point(alpha=.4) +
+  geom_smooth(method = "loess",se=F,size=1.5) +
+  theme_minimal() +
+  facet_wrap(~continent,nrow=1) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r,fig.align="center",fig.height=4,fig.width=7}
+gapminder %>% 
+  mutate(ln_gdppc = log(gdpPercap)) %>% 
+  ggplot(aes(x=ln_gdppc,y=lifeExp,color=continent)) +
+  # geom_point(alpha=.4) +
+  geom_smooth(method = "loess",se=F,size=1.5) +
+  scale_color_gdocs() +
+  theme_minimal() +
+  labs(color="",x= "Log GDP Per Capita",y="Life Expectancy") +
+  theme(legend.position = "bottom")
+```
+
+#### 3. Which countries in Africa have the lowest levels of life expectancy?
+
+```{r,fig.align="center",fig.height=7,fig.width=7}
+# Data 
+gapminder %>% 
+  filter(continent == "Africa") %>% 
+  group_by(country) %>% 
+  summarize(lifeExp = mean(lifeExp),.groups="drop") %>% 
+  
+  # Plot
+  ggplot(aes(x=lifeExp,y=fct_reorder(country,desc(lifeExp)),
+             fill = lifeExp) ) +
+  geom_col() +
+  scale_fill_gradient2_tableau() +
+  labs(y="",x="Life Expectancy") +
+  theme_hc()
+```
+
+```{r,fig.align="center",fig.height=7,fig.width=10}
+map_data("world") %>% 
+  ggplot(aes(x = long,y=lat,group=group)) +
+  geom_polygon()
+```
+
+
+
+
